@@ -26,16 +26,12 @@ oList <-
 # Reduce name times to the LDASOUT convention
 obsTimePatterns <- names(oList)
 obsTimePatterns <- gsub('(-|_| |:)', '' , obsTimePatterns)
-obsTimePatterns <- paste0('(',paste(obsTimePatterns, collapse='|'),')')
+obsTimePatterns <- paste0(paste0(obsTimePatterns,'.LDASOUT_DOMAIN1', collaps=''),collapse='|')
+
 ## something like
 modelFiles <- list.files(outputPath, patt=obsTimePatterns, full=TRUE)
 
-GetLdasOut <- function(ff, vars) {
-  fileTime <- substr(basename(ff), 1, 12)
-  ldasData <- GetNcdfFile(ff, c('SNOWH','FSNO'), q=TRUE)
-  ldasData$time <- as.POSIXct(fileTime, format='%Y%m%d%H%M', tz='UTC', origin=PosixOrigin())
-}
-
+#GetLdasOut==function from calib wkflow
 allLdasOut <- plyr::llply(modelFiles, GetLdasOut)
          
 ############################################################################

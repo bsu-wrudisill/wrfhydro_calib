@@ -5,8 +5,8 @@ ReadNamelist <- function(nlist) {
    load(obsFile)
 }
 
-# Convert to daily flow
 
+# Convert to daily flow
 Convert2Daily <- function(str) {
    str$Date <- rwrfhydro::CalcDateTrunc(str$POSIXct)
    setkey(str, Date)
