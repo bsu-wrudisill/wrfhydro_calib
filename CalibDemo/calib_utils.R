@@ -1,5 +1,14 @@
 # Namelist read function
 
+#orig
+ReadLdasOut <- function(ff, vars) {
+  fileTime <- substr(basename(ff), 1, 12)
+  ldasData <- GetNcdfFile(ff, c('SNOWH','FSNO'), q=TRUE)
+  #ldasData$time <- as.POSIXct(fileTime, format='%Y%m%d%H%M', tz='UTC', origin=PosixOrigin())
+}
+
+
+
 ReadNamelist <- function(nlist) {
    source(nlist)
    load(obsFile)

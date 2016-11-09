@@ -1,7 +1,7 @@
 #### Model Parameters ####
 
 # Model run directory
-runDir <- "/glade/scratch/jamesmcc/tuolumne.calibration/"
+runDir <- "/glade/scratch/adugger/CONUS_CALIB/CalibDemo/"
 
 # Route link file
 rtlinkFile <- paste0(runDir, "/RUN.TEMPLATE/DOMAIN/RouteLink.nc")
@@ -48,28 +48,12 @@ objFn <- function (m, o, w=0.5, p=1) {  # Negative weighted mean NSE and log NSE
     res <- ((w^p) * (nse^p) + (w^p) * (lnnse^p))^(1/p)
     0-res
 }
-
 #objFn <- function (m, o) {  # Negative NSE
 #    err1 <- sum((m - o)^2, na.rm=T)
 #    err2 <- sum((o - mean(o, na.rm=T))^2, na.rm=T)
 #    ns <- 1 - (err1/err2)
 #    0-ns
 #}
-
-
-ObjFunSpaceRmse <- function(m, o, var, missing=NA) {
-  ## treat NA?
-  rmse <- array(NA, dim=c(length(m),length(m[[1]][[var]])) ) 
-  theNames <- names(m)
-  for(tt in 1:length(m)) {
-    nn <- theNames[tt]
-    rmse[tt,] <- as.vector( m[[tt]]$SNOWH - o[[tt]]$SNOWH)
-  }
-  sqrt( mean( rmse^2, na.rm=FALSE ) )
-}
-
-obj <- ObjFunSpaceRmse(mList, oList)
-
 
 # Start date for evaluation period (e.g., after spinup period)
 startDate <- as.POSIXct("2008-10-01", format="%Y-%m-%d", tz="UTC")

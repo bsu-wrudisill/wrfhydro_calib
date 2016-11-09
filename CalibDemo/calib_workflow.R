@@ -5,6 +5,7 @@
 ## dummy construction of observation list
 ## may want to reduce the names in the list to YYYYMMDDHHMM ... though, maybe not if we ever
 ## start doing calib with 2D fields from Hydro RTOUT file.
+
 o0 <- array(sqrt(1:25), dim=c(5,5))
 oList <-
   list(
@@ -19,22 +20,8 @@ oList <-
             SNOWH = o0,
             FSNO  = round(o0/max(o0)) )
        )
-############################################################################
 
-## filter the entries by startDate before getting model files.
 
-# Reduce name times to the LDASOUT convention
-obsTimePatterns <- names(oList)
-obsTimePatterns <- gsub('(-|_| |:)', '' , obsTimePatterns)
-obsTimePatterns <- paste0(paste0(obsTimePatterns,'.LDASOUT_DOMAIN1', collaps=''),collapse='|')
-
-## something like
-modelFiles <- list.files(outputPath, patt=obsTimePatterns, full=TRUE)
-
-#GetLdasOut==function from calib wkflow
-allLdasOut <- plyr::llply(modelFiles, GetLdasOut)
-         
-############################################################################
 ## dummy construction of model data list.
 m0 <- array(1:25, dim=c(5,5))
 mList <-
@@ -80,7 +67,7 @@ if (parallelFlag && ncores>1) {
 
 
 #########################################################
-# MAIN CODE
+                            # MAIN CODE
 #########################################################
 
 ### WILL: proj_data.Rdata == where previous calib outputs are stored?
@@ -107,9 +94,9 @@ if (file.exists("proj_data.Rdata")) {
 ###### WILL: This part will be removed/changed
 ######
    # Find the index of the gage
-   rtLink <- ReadRouteLink(rtlinkFile)
-   rtLink <- data.table(rtLink)
-   linkId <- which(trimws(rtLink$gages) %in% siteId)
+  # rtLink <- ReadRouteLink(rtlinkFile)
+  # rtLink <- data.table(rtLink)
+  # linkId <- which(trimws(rtLink$gages) %in% siteId)
 ##########
 #########
    
@@ -164,6 +151,13 @@ if (cyclecount > 0) {
 
    system.time({
 
+   ## filter the entries by startDate before getting model files.
+   # Reduce name times to the LDASOUT convention
+   obsTimePatterns <- names(oList)
+   obsTimePatterns <- gsub('(-|_| |:)', '' , obsTimePatterns)
+
+   ##this way time and the file name is matched. maybe change var name...
+   obsTimePatterns <- paste0("(",paste0(paste0(obsTimePatterns,'.LDASOUT_DOMAIN1', collaps=''),collapse='|'),")")
 
    modelFiles <- list.files(path = outputPath, 
                             patt=obsTimePatterns, 
@@ -171,8 +165,12 @@ if (cyclecount > 0) {
 
    if (length(modelFiles) == 0) stop("No matching files in specified directory.")
    
-   #####MODIFY: right now its reading all outputs, needs to just be LDASOUT
+   #
    allLdasOut <- plyr::llply(modelFiles, ReadLdasOut)
+
+   ####not very elegant
+   names(allLdasOut)<-names(oList)
+
 
 
    # filesList <- list.files(path = outPath,
@@ -183,26 +181,26 @@ if (cyclecount > 0) {
 ########
 
    #####WILL: Should spit out dates from the outfile names...
-   filesListDate <- as.POSIXct(unlist(plyr::llply(strsplit(basename(filesList),"[.]"), '[',1)), format = "%Y%m%d%H%M", tz = "UTC")
+   #filesListDate <- as.POSIXct(unlist(plyr::llply(strsplit(basename(filesList),"[.]"), '[',1)), format = "%Y%m%d%H%M", tz = "UTC")
    
    ####WIll: this allows for model spinup, outfiles aren't read from before startdate(?)
-   whFiles <- which(filesListDate >= startDate)
+   #whFiles <- which(filesListDate >= startDate)
 
    ###WILL Subsets outfiles that are newer than start date
-   filesList <- filesList[whFiles]
-   if (length(filesList) == 0) stop("No matching files in specified directory.")
+   #filesList <- filesList[whFiles]
+   #if (length(filesList) == 0) stop("No matching files in specified directory.")
 
 
 #######WILL: this will need to change... ReadChFile Refers to the util function which reads 
 #######streamflow from the output Netcdf file.  
 
-   chrt <- as.data.table(plyr::ldply(filesList, ReadChFile, linkId, .parallel = parallelFlag))
-   })
+   #chrt <- as.data.table(plyr::ldply(filesList, ReadChFile, linkId, .parallel = parallelFlag))
+   #})
 
    #######WILL: This will also need to change
    # Convert to daily
-   chrt.d <- Convert2Daily(chrt)
-   chrt.d[, site_no := siteId]
+   #chrt.d <- Convert2Daily(chrt)
+   #chrt.d[, site_no := siteId]
 
    ###WILL: not sure what assign is doing
    assign(paste0("chrt.d.", cyclecount), chrt.d)
