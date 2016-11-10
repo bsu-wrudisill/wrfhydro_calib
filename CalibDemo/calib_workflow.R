@@ -113,9 +113,8 @@ if (cyclecount > 0) {
    system.time({
    
    #collect observation files and reduce name times to the LDASOUT convention
-
-   obsDir <- "~/tlmod"
-   oFiles <- list.files(obsDir, patt='MYD10A1*')
+   obsDir <- "/glade/u/home/rudisill/tlmod/"
+   oFiles <- list.files(obsDir, patt='MYD10A1*',full=TRUE)
 
    #for the synthetic data case, obsTimePatterns <- names(oList)
    
@@ -126,18 +125,20 @@ if (cyclecount > 0) {
 
    ##this way time and the file name is matched. maybe change var name...
    obsTimePatterns <- paste0("(",paste0(paste0(obsTimePatterns,'.LDASOUT_DOMAIN1', collaps=''),collapse='|'),")")
-
-   modelFiles <- list.files(path = outputPath, 
+   #outputPath <- "SENS_RESULTS/OUTPUT1"
+   modelFiles <- list.files(path = outPath, 
                             patt=obsTimePatterns, 
                             full=TRUE)
 
    if (length(modelFiles) == 0) stop("No matching files in specified directory.")
-   
+  
+   #Model Files List
    allLdasOut <- plyr::llply(modelFiles, ReadLdasOut)
-   
-   ####not very elegant
    names(allLdasOut)<-oList
 
+   #Output Files List
+   allmod <- plyr::llply(oFiles, ReadObs)
+   names(allmod)<-oList
 
 
 ########
@@ -145,43 +146,35 @@ if (cyclecount > 0) {
 
    #####WILL: Should spit out dates from the outfile names...
    #filesListDate <- as.POSIXct(unlist(plyr::llply(strsplit(basename(filesList),"[.]"), '[',1)), format = "%Y%m%d%H%M", tz = "UTC")
-   
    ####WIll: this allows for model spinup, outfiles aren't read from before startdate(?)
    #whFiles <- which(filesListDate >= startDate)
-
    ###WILL Subsets outfiles that are newer than start date
    #filesList <- filesList[whFiles]
    #if (length(filesList) == 0) stop("No matching files in specified directory.")
-
-
 #######WILL: this will need to change... ReadChFile Refers to the util function which reads 
 #######streamflow from the output Netcdf file.  
-
    #chrt <- as.data.table(plyr::ldply(filesList, ReadChFile, linkId, .parallel = parallelFlag))
    #})
-
    #######WILL: This will also need to change
    # Convert to daily
    #chrt.d <- Convert2Daily(chrt)
    #chrt.d[, site_no := siteId]
-
    ###WILL: not sure what assign is doing
-   assign(paste0("chrt.d.", cyclecount), chrt.d)
-   
+   #assign(paste0("chrt.d.", cyclecount), chrt.d)
    ###WILL: saves the chrt (the output discharge) to .Rdata file
-   save(list=c(paste0("chrt.d.", cyclecount)), file=paste0("archive/", paste0("chrt.d.", cyclecount), ".Rdata"))
-
+   #save(list=c(paste0("chrt.d.", cyclecount)), file=paste0("archive/", paste0("chrt.d.", cyclecount), ".Rdata"))
    # Merge
    ###WILL: where does setkey come from? 
-   setkey(chrt.d, "site_no", "POSIXct")
-   setkey(obsDT, "site_no", "POSIXct")
-
+   #setkey(chrt.d, "site_no", "POSIXct")
+   #setkey(obsDT, "site_no", "POSIXct")
    ##WILL: 'merge' merges two dataframes by parameter. This step puts obs and output 
    ## the same dataframe..
-   chrt.d <- merge(chrt.d, obsDT, by=c("site_no", "POSIXct"), all.x=FALSE, all.y=FALSE)
-   
+   #chrt.d <- merge(chrt.d, obsDT, by=c("site_no", "POSIXct"), all.x=FALSE, all.y=FALSE)
    ##WILL: objFn (note: not a verb) returns the objective function
-   F_new <- objFn(chrt.d$q_cms, chrt.d$obs)
+   #F_new <- objFn(chrt.d$q_cms, chrt.d$obs)
+   
+   
+   F_new <- ObjFunSpaceRmse(allLdasOut,allmod,'FSNO', 'Fractional_Snow_Cover_MOD_Grid_Snow_500m')
    print(F_new)
 
 
@@ -247,6 +240,7 @@ if (cyclecount > 0) {
    quit("no")
 
 }
+
 
 
 

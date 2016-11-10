@@ -56,19 +56,17 @@ objFn <- function (m, o, w=0.5, p=1) {  # Negative weighted mean NSE and log NSE
 #    0-ns
 #}
 
-
-ObjFunSpaceRmse <- function(m, o, var, missing=NA) {
+ObjFunSpaceRmse <- function(m, o, mvar,ovar) {
   ## treat NA?
-  rmse <- array(NA, dim=c(length(m),length(m[[1]][[var]])) ) 
+  rmse <- array(NA, dim=c(length(m),length(m[[1]][[mvar]]))) 
   theNames <- names(m)
   for(tt in 1:length(m)) {
     nn <- theNames[tt]
-    rmse[tt,] <- as.vector( m[[tt]]$var - o[[tt]]$var)
+    rmse[tt,] <- as.vector( m[[tt]][[mvar]] - o[[tt]][[ovar]])     
   }
-  sqrt( mean( rmse^2, na.rm=FALSE ) )
+  sqrt(mean(rmse^2, na.rm=TRUE ) )
+  
 }
-
-obj <- ObjFunSpaceRmse(mList, oList)
 
 
 # Start date for evaluation period (e.g., after spinup period)
