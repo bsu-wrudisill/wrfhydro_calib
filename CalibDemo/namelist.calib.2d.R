@@ -63,7 +63,7 @@ ObjFunSpaceRmse <- function(m, o, var, missing=NA) {
   theNames <- names(m)
   for(tt in 1:length(m)) {
     nn <- theNames[tt]
-    rmse[tt,] <- as.vector( m[[tt]]$SNOWH - o[[tt]]$SNOWH)
+    rmse[tt,] <- as.vector( m[[tt]]$var - o[[tt]]$var)
   }
   sqrt( mean( rmse^2, na.rm=FALSE ) )
 }

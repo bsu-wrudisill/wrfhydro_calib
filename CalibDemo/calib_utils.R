@@ -7,7 +7,11 @@ ReadLdasOut <- function(ff, vars) {
   #ldasData$time <- as.POSIXct(fileTime, format='%Y%m%d%H%M', tz='UTC', origin=PosixOrigin())
 }
 
+Read2dObs <-function(ff, vars){
+  fileTime <- substr(basename(ff), 1, 12)
+  ###still working... 
 
+}
 
 ReadNamelist <- function(nlist) {
    source(nlist)

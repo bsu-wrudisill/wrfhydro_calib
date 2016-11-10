@@ -1,45 +1,6 @@
 ## JLM: dumping code to be added/edited for 2D processes at the top
 ## gather all obs before hand
 
-############################################################################
-## dummy construction of observation list
-## may want to reduce the names in the list to YYYYMMDDHHMM ... though, maybe not if we ever
-## start doing calib with 2D fields from Hydro RTOUT file.
-
-o0 <- array(sqrt(1:25), dim=c(5,5))
-oList <-
-  list(
-       `2015-01-01_12:00:00`=
-       list( time = as.POSIXct('2015-01-01_12:00:00',
-                               format='%Y-%m-%d_%H:%M:%S', tz='UTC', origin=PosixOrigin()),
-            SNOWH = o0,
-            FSNO  = round(o0/max(o0)) ),
-       `2015-02-01_12:00:00`=
-       list( time = as.POSIXct('2015-02-01_12:00:00',
-                               format='%Y-%m-%d_%H:%M:%S', tz='UTC', origin=PosixOrigin()),
-            SNOWH = o0,
-            FSNO  = round(o0/max(o0)) )
-       )
-
-
-## dummy construction of model data list.
-m0 <- array(1:25, dim=c(5,5))
-mList <-
-  list(
-       `2015-01-01_12:00:00`=
-       list( time  = as.POSIXct('2015-01-01_12:00:00',
-                                format='%Y-%m-%d_%H:%M:%S', tz='UTC', origin=PosixOrigin()),
-             SNOWH = m0,
-             FSNO  = round(m0/max(m0)) ),
-
-       `2015-02-01_12:00:00`=
-       list( time  = as.POSIXct('2015-02-01_12:00:00',
-                                format='%Y-%m-%d_%H:%M:%S', tz='UTC', origin=PosixOrigin()),
-             SNOWH = m0,
-             FSNO  = round(m0/max(m0)) )
-       )
-############################################################################
-
 #######################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################################
 
 .libPaths("/glade/u/home/adugger/system/R/Libraries/R3.2.2")
@@ -150,11 +111,18 @@ if (cyclecount > 0) {
 ########
 
    system.time({
+   
+   #collect observation files and reduce name times to the LDASOUT convention
 
-   ## filter the entries by startDate before getting model files.
-   # Reduce name times to the LDASOUT convention
-   obsTimePatterns <- names(oList)
-   obsTimePatterns <- gsub('(-|_| |:)', '' , obsTimePatterns)
+   obsDir <- "~/tlmod"
+   oFiles <- list.files(obsDir, patt='MYD10A1*')
+
+   #for the synthetic data case, obsTimePatterns <- names(oList)
+   
+   #specific case for modis data.. maybe the best thing to to is rename to Obs files beforehand 
+   #to the same specification as model out files, i.e yyyymmddhhmm.filename
+   oList <- paste0(as.Date(as.integer(substr(basename(oFiles),14,16)), origin=paste0(substr(basename(oFiles), 10,13), "-01-01")),"_12:00")
+   obsTimePatterns <- gsub('(-|_| |:)', '' , oList)
 
    ##this way time and the file name is matched. maybe change var name...
    obsTimePatterns <- paste0("(",paste0(paste0(obsTimePatterns,'.LDASOUT_DOMAIN1', collaps=''),collapse='|'),")")
@@ -165,17 +133,12 @@ if (cyclecount > 0) {
 
    if (length(modelFiles) == 0) stop("No matching files in specified directory.")
    
-   #
    allLdasOut <- plyr::llply(modelFiles, ReadLdasOut)
-
+   
    ####not very elegant
-   names(allLdasOut)<-names(oList)
+   names(allLdasOut)<-oList
 
 
-
-   # filesList <- list.files(path = outPath,
-   #                        pattern = glob2rx("*.CHRTOUT_DOMAIN*"),
-   #                        full.names = TRUE)
 
 ########
 ########
@@ -220,7 +183,6 @@ if (cyclecount > 0) {
    ##WILL: objFn (note: not a verb) returns the objective function
    F_new <- objFn(chrt.d$q_cms, chrt.d$obs)
    print(F_new)
-
 
 
 
