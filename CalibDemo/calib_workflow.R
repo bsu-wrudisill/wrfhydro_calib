@@ -45,10 +45,8 @@ if (file.exists("proj_data.Rdata")) {
    writePlotDir <- paste0(runDir, "/plots")
    dir.create(writePlotDir)
 
-   ## WILL: What goes into obs file? I'm guessing 'observations'... Yes. 
-
-   # Load obs so we have them for next iteration
-   load(obsFile)
+   #Load obs so we have them for next iteration
+   #load(obsFile)
    #obsDT$q_cms <- NULL
 
 
@@ -89,7 +87,6 @@ if (file.exists("proj_data.Rdata")) {
    write.table(data.frame(t(x_new_out)), file="params_new.txt", row.names=FALSE, sep=" ")
 
    dir.create("archive")
-
    # Save and exit
    save.image("proj_data.Rdata")
    quit("no")
@@ -173,7 +170,7 @@ if (cyclecount > 0) {
    ##WILL: objFn (note: not a verb) returns the objective function
    #F_new <- objFn(chrt.d$q_cms, chrt.d$obs)
    
-   
+
    F_new <- ObjFunSpaceRmse(allLdasOut,allmod,'FSNO', 'Fractional_Snow_Cover_MOD_Grid_Snow_500m')
    print(F_new)
 
@@ -232,7 +229,7 @@ if (cyclecount > 0) {
    } else {
       system(paste0("rm -r ", modFromPath), intern=FALSE)
    }
-
+   
    # Save and exit
    ###WILL: what gets saved in 'save.image'?....
 

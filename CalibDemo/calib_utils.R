@@ -1,17 +1,19 @@
 # Namelist read function
 
 #orig
-ReadLdasOut <- function(ff, vars) {
+ReadLdasOut <- function(ff, vars='FSNO') {
   fileTime <- substr(basename(ff), 1, 12)
-  ldasData <- GetNcdfFile(ff, c('SNOWH','FSNO'), q=TRUE)
-  #ldasData$time <- as.POSIXct(fileTime, format='%Y%m%d%H%M', tz='UTC', origin=PosixOrigin())
+  # ldasData <- GetNcdfFile(ff, c('SNOWH','FSNO'), q=TRUE)
+  ldasData <- GetNcdfFile(ff, vars, q=TRUE)
 }
 
-Read2dObs <-function(ff, vars){
-  fileTime <- substr(basename(ff), 1, 12)
-  ###still working... 
-
+#temporary solution. change this function later 
+Read2dObs <- function(ff, vars='Fractional_Snow_Cover_MOD_Grid_Snow_500m'){
+  ldasData <- GetNcdfFile(ff, vars, q=TRUE)
+  #obviously not much different than readLDASOUT, but passing variable options 
+  #into functions in llply seems weird
 }
+
 
 ReadNamelist <- function(nlist) {
    source(nlist)

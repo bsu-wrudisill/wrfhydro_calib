@@ -24,12 +24,12 @@ paramBnds <- read.table(paste0(runDir, "/param_bnds.txt"), header=TRUE, sep=" ",
 #### Model Evaluation Parameters ####
 
 # Gage ID to extract from the model output and compare against the obs
-siteId <- "02245500"
+#siteId <- "02245500"
 
 # R dataset containing observations
 # Must contain an object called obsDf containing columns:
 # "POSIXct" for POSIXct data, "obs" for streamflow data
-obsFile <- paste0(runDir, "/OBS/obsDaily.Rdata")
+#obsFile <- paste0(runDir, "/OBS/obsDaily.Rdata")
 
 # Objective function
 # Must contain a function to be minimized, with two arguments (in order): model, obs 
