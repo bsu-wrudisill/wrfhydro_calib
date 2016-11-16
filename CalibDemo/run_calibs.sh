@@ -7,7 +7,7 @@ soilfile='soil_properties.nc'
 gwfile='GWBUCKPARM.nc'
 fulldomfile='Fulldom.nc'
 
-baserundir=`grep -m 1 -F runDir namelist.calib | cut -d "<" -f2 | cut -d "-" -f2`
+baserundir=`grep -m 1 -F runDir namelist.calib.2d.R | cut -d "<" -f2 | cut -d "-" -f2`
 echo $baserundir
 baserundir=`echo $baserundir | sed 's/\"//g'`
 echo $baserundir
